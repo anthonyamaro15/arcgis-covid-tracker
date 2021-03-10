@@ -3,6 +3,8 @@ import Map from '@arcgis/core/Map';
 import MapView from '@arcgis/core/views/MapView';
 import esriConfig from '@arcgis/core/config.js';
 import FeatureLayer from '@arcgis/core/layers/FeatureLayer';
+import BaseMapGallery from '@arcgis/core/widgets/BasemapGallery';
+import Expand from '@arcgis/core/widgets/Expand';
 import { apieKey } from './envVariables';
 
 
@@ -46,7 +48,18 @@ function App() {
             popupTemplate: trackerPopup
          });
 
-         map.add(covidLayer, 0);
+         const baseMapGallery = new BaseMapGallery({
+            view,
+            container: document.createElement('div')
+         });
+         const bgExpand = new Expand({
+            view,
+            content: baseMapGallery
+         })
+
+         view.ui.add(bgExpand, 'top-right');
+         map.addMany([ covidLayer ],0);
+
       }
 
    },[]);
