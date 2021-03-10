@@ -1,1 +1,1 @@
-# arcgis-covid-tracker
+# Getting Started with Create React App
