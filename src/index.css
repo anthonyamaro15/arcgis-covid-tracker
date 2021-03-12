@@ -1,3 +1,5 @@
+@import "@arcgis/core/assets/esri/themes/dark/main.css";
+
 html,
 body,
 #root {
@@ -14,4 +16,26 @@ body,
   width: 100%;
 }
 
-@import "@arcgis/core/assets/esri/themes/dark/main.css";
+#dead-filter {
+  height: 160px;
+  width: 100%;
+  visibility: hidden;
+}
+
+.testing {
+  width: 100%;
+  padding: 12px;
+  text-align: center;
+  vertical-align: baseline;
+  cursor: pointer;
+  height: 40px;
+  /* width: 100px; */
+}
+
+.testing:focus {
+  background-color: dimgrey;
+}
+
+.testing:hover {
+  background-color: dimgrey;
+}
