@@ -1,0 +1,124 @@
+@import "@arcgis/core/assets/esri/themes/dark/main.css";
+
+* {
+  box-sizing: border-box;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+body,
+.app-container {
+  overflow: hidden;
+  position: fixed;
+  width: 100vw;
+  margin: 0;
+  top: 0;
+  bottom: 0;
+  display: flex;
+
+  .mapview-container {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    width: 100%;
+  }
+}
+
+p {
+  margin: 0;
+  padding: 0;
+}
+
+button {
+  cursor: pointer;
+
+  &.styleless-button {
+    // BELOW RESETS DEFAULT BUTTON STYLING
+    background: none;
+    color: inherit;
+    border: none;
+    padding: 0;
+    font: inherit;
+    cursor: pointer;
+    outline: inherit;
+  }
+}
+
+// html,
+// body,
+// #root {
+//   padding: 0;
+//   margin: 0;
+//   height: 100%;
+//   width: 100%;
+// }
+
+// .mapDiv {
+//   padding: 0;
+//   margin: 0;
+//   height: 100%;
+//   width: 100%;
+// }
+
+#dead-filter {
+  height: 160px;
+  width: 100%;
+  visibility: hidden;
+}
+
+.testing {
+  width: 100%;
+  padding: 12px;
+  text-align: center;
+  vertical-align: baseline;
+  cursor: pointer;
+  height: 40px;
+  /* width: 100px; */
+}
+
+.testing:focus {
+  background-color: dimgrey;
+}
+
+.testing:hover {
+  background-color: dimgrey;
+}
+
+.mapview-container {
+  height: 100%;
+  width: 100%;
+
+  .mapview {
+    height: 100%;
+    width: 100%;
+  }
+
+  .control-panel {
+    // position: absolute;
+    // top: 85px;
+    // right: 15px;
+    height: 110px;
+    width: 235px;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    background-color: #ffffff;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+
+    .control-container {
+      &:last-child {
+        display: flex;
+        align-items: center;
+
+        p {
+          order: 2;
+        }
+      }
+
+      input[type="range"] {
+        width: 100%;
+      }
+    }
+  }
+}
