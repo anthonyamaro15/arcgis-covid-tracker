@@ -6,6 +6,7 @@ import layerFactory from '../utils/layerFactory.utils';
 import FeatureLayer from '@arcgis/core/layers/FeatureLayer';
 import BaseMapGallery from '@arcgis/core/widgets/BasemapGallery';
 import Expand from '@arcgis/core/widgets/Expand';
+import Search from '@arcgis/core/widgets/Search';
 import FeatureLayerView from '@arcgis/core/views/layers/FeatureLayerView';
 import store from '../redux/store';
 import { setMapLoaded } from '../redux/slices/mapSlice';
@@ -16,6 +17,7 @@ class MapController {
    #mapLayers?: any;
    #baseMapGallery?: BaseMapGallery;
    #bgExpand?: Expand;
+   #searchWidget?: Search;
    layerView?: FeatureLayerView | any;
    
    initializeMap = async (domRef: RefObject<HTMLDivElement>) => {
@@ -39,6 +41,9 @@ class MapController {
          view: this.#mapview, content: this.#baseMapGallery,
       });
 
+      this.#searchWidget = new Search({ view: this.#mapview });
+
+      this.#mapview.ui.add(this.#searchWidget, 'top-right');
       this.#mapview.ui.add(this.#bgExpand, 'top-right');
 
       this.#mapview?.when(async () => {
@@ -58,6 +63,7 @@ class MapController {
          node?.addEventListener('click', (e) => this.filterByDeath(e, this.layerView))
 
          const layer = this.#map?.findLayerById('covid-tracker') as FeatureLayer;
+        
          this.#mapview?.whenLayerView(layer)?.then((featureLayerView) => {
             this.layerView = featureLayerView;
 
