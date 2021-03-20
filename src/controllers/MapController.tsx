@@ -8,6 +8,8 @@ import BaseMapGallery from '@arcgis/core/widgets/BasemapGallery';
 import Expand from '@arcgis/core/widgets/Expand';
 import Search from '@arcgis/core/widgets/Search';
 import FeatureLayerView from '@arcgis/core/views/layers/FeatureLayerView';
+import GraphicsLayer from '@arcgis/core/layers/GraphicsLayer';
+import Sketch from '@arcgis/core/widgets/Sketch';
 import store from '../redux/store';
 import { setMapLoaded } from '../redux/slices/mapSlice';
 
@@ -18,6 +20,8 @@ class MapController {
    #baseMapGallery?: BaseMapGallery;
    #bgExpand?: Expand;
    #searchWidget?: Search;
+   #layer?: GraphicsLayer;
+   #sketch?: Sketch;
    layerView?: FeatureLayerView | any;
    
    initializeMap = async (domRef: RefObject<HTMLDivElement>) => {
@@ -25,8 +29,11 @@ class MapController {
          return;
       }
 
+      this.#layer = new GraphicsLayer();
+
       this.#map = new Map({
-         basemap: "hybrid"
+         basemap: "hybrid",
+         layers: [this.#layer]
       });
 
       this.#mapview = new MapView({
@@ -42,7 +49,9 @@ class MapController {
       });
 
       this.#searchWidget = new Search({ view: this.#mapview });
+      this.#sketch = new Sketch({ layer: this.#layer, view: this.#mapview, creationMode: 'update' });
 
+      this.#mapview.ui.add(this.#sketch, 'bottom-right');
       this.#mapview.ui.add(this.#searchWidget, 'top-right');
       this.#mapview.ui.add(this.#bgExpand, 'top-right');
 
@@ -63,6 +72,8 @@ class MapController {
          node?.addEventListener('click', (e) => this.filterByDeath(e, this.layerView))
 
          const layer = this.#map?.findLayerById('covid-tracker') as FeatureLayer;
+
+         
         
          this.#mapview?.whenLayerView(layer)?.then((featureLayerView) => {
             this.layerView = featureLayerView;
