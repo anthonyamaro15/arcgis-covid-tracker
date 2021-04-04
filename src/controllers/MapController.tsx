@@ -10,6 +10,7 @@ import Search from "@arcgis/core/widgets/Search";
 import FeatureLayerView from "@arcgis/core/views/layers/FeatureLayerView";
 import GraphicsLayer from "@arcgis/core/layers/GraphicsLayer";
 import Sketch from "@arcgis/core/widgets/Sketch";
+import Query from "@arcgis/core/tasks/support/Query";
 import store from "../redux/store";
 import { setCountries, setMapLoaded } from "../redux/slices/mapSlice";
 
@@ -23,6 +24,7 @@ class MapController {
    #layer?: GraphicsLayer;
    #sketch?: Sketch;
    #layerView?: FeatureLayerView | any;
+   #test?: any;
 
    initializeMap = async (domRef: RefObject<HTMLDivElement>) => {
       if (!domRef.current) {
@@ -59,7 +61,7 @@ class MapController {
          creationMode: "update",
       });
 
-      this.#mapview.ui.add(this.#sketch, "bottom-right");
+      // this.#mapview.ui.add(this.#sketch, "bottom-right");
       this.#mapview.ui.add(this.#searchWidget, "top-right");
       this.#mapview.ui.add(this.#bgExpand, "top-right");
 
@@ -105,6 +107,18 @@ class MapController {
       });
    };
 
+   recenterMap = (geometries: any, fn: any) => {
+      return fn.union(geometries);
+   };
+
+   updateView = () => {
+      if (this.#layerView) {
+         this.#layerView.filter = {
+            geometry: this.#test,
+         };
+      }
+   };
+
    filterByCountry = async () => {
       if (this.#mapLayers) {
          const countries = await this.#mapLayers[0].queryFeatures({
@@ -127,11 +141,21 @@ class MapController {
       }
    };
 
-   filterByDeath = (value: string) => {
+   filterByDeath = async (value: string) => {
+      const layer = this.#map?.findLayerById(
+         "covid-tracker",
+      ) as __esri.FeatureLayer;
       if (this.#layerView) {
+         const query = new Query();
+         query.where = "Country_Region = '" + value + "'";
          this.#layerView.filter = {
             where: "Country_Region = '" + value + "'",
          };
+         const extend = await layer.queryExtent(query);
+         this.#mapview?.goTo(
+            { zoom: 5, target: extend.extent },
+            { animate: true, duration: 100 },
+         );
       }
    };
 
