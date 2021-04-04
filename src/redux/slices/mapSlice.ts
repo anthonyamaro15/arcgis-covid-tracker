@@ -26,6 +26,6 @@ const mapSlice = createSlice({
 export const { setMapLoaded, setCountries } = mapSlice.actions;
 
 export const mapLoaded = (state: RootState) => state.mapSlice.mapLoaded;
-export const countries = (state: RootState) => state.mapSlice.countries;
+export const countriesSelector = (state: RootState) => state.mapSlice.countries;
 
 export default mapSlice.reducer;
