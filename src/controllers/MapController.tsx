@@ -11,18 +11,18 @@ import FeatureLayerView from "@arcgis/core/views/layers/FeatureLayerView";
 import GraphicsLayer from "@arcgis/core/layers/GraphicsLayer";
 import Sketch from "@arcgis/core/widgets/Sketch";
 import store from "../redux/store";
-import { setMapLoaded } from "../redux/slices/mapSlice";
+import { setCountries, setMapLoaded } from "../redux/slices/mapSlice";
 
 class MapController {
    #map?: Map;
    #mapview?: MapView;
-   #mapLayers?: any;
+   #mapLayers?: FeatureLayer[] | any;
    #baseMapGallery?: BaseMapGallery;
    #bgExpand?: Expand;
    #searchWidget?: Search;
    #layer?: GraphicsLayer;
    #sketch?: Sketch;
-   layerView?: FeatureLayerView | any;
+   #layerView?: FeatureLayerView | any;
 
    initializeMap = async (domRef: RefObject<HTMLDivElement>) => {
       if (!domRef.current) {
@@ -74,19 +74,14 @@ class MapController {
             }
          }
 
-         // const nodes = document.querySelectorAll(".testing");
          const node = document.getElementById("dead-filter");
-
-         node?.addEventListener("click", (e) =>
-            this.filterByDeath(e, this.layerView),
-         );
 
          const layer = this.#map?.findLayerById(
             "covid-tracker",
          ) as FeatureLayer;
 
          this.#mapview?.whenLayerView(layer)?.then((featureLayerView) => {
-            this.layerView = featureLayerView;
+            this.#layerView = featureLayerView;
 
             if (node) {
                node.style.visibility = "visible";
@@ -99,22 +94,45 @@ class MapController {
 
                nodesExpand.watch("expanded", () => {
                   if (!nodesExpand.expanded) {
-                     this.layerView.filter = null;
+                     this.#layerView.filter = null;
                   }
                });
                this.#mapview?.ui.add(nodesExpand, "top-left");
             }
          });
          store.dispatch(setMapLoaded(true));
+         this.filterByCountry();
       });
    };
 
-   // cast types as any for the moment
-   filterByDeath = (e: any, layerView: any) => {
-      const selectedNode = e.target.getAttribute("data-count");
-      layerView.filter = {
-         where: "Country_Region = '" + selectedNode + "'",
-      };
+   filterByCountry = async () => {
+      if (this.#mapLayers) {
+         const countries = await this.#mapLayers[0].queryFeatures({
+            outFields: ["Country_Region"],
+            where: "Country_Region IS NOT NULL ",
+         });
+         if (countries.features.length) {
+            let allCountries: string[] = [];
+            const removeInvalidCountries = countries.features.map(
+               (country: any) => country.attributes,
+            );
+            for (let i = 0; i < removeInvalidCountries.length; i++) {
+               const country = removeInvalidCountries[i].Country_Region;
+               if (!allCountries.includes(country)) {
+                  allCountries.push(country);
+               }
+            }
+            store.dispatch(setCountries(allCountries));
+         }
+      }
+   };
+
+   filterByDeath = (value: string) => {
+      if (this.#layerView) {
+         this.#layerView.filter = {
+            where: "Country_Region = '" + value + "'",
+         };
+      }
    };
 
    get map() {
