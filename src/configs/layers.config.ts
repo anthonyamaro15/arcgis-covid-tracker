@@ -4,31 +4,43 @@ const color = {
    type: "color",
    field: "Deaths",
    legendOptions: {
-      title: "number of death by color",
+      title: "number of deaths representing by color",
       showLegend: true,
    },
    stops: [
-      { value: 10, color: "black", label: "test" },
-      { value: 1000, color: "red", label: "test" },
-      { value: 2000, color: "purple", label: "test" },
-      { value: 5000, color: "black", label: "test" },
-      { value: 10000, color: "green", label: "test" },
+      { value: 10, color: "black", label: "> Black" },
+      { value: 1000, color: "red", label: "> Red" },
+      { value: 2000, color: "purple", label: "> Purple" },
+      { value: 10000, color: "orange", label: "> Orange" },
+      { value: 5000, color: "green", label: "> Green" },
    ],
 };
 
 const size = {
    type: "size",
    field: "Deaths",
-   valueExpression: "$feature.Deaths",
    legendOptions: {
-      title: "number of deaths by size",
+      title: "Number of deaths by representing by size",
+      showLegend: true,
    },
    stops: [
-      { value: 10, size: 9, label: "100" },
-      { value: 1000, size: 8, label: "1000" },
-      { value: 2000, size: 16, label: "2000" },
-      { value: 5000, size: 20, label: "5000" },
-      { value: 10000, size: 25, label: "10000" },
+      { value: 10, size: 9, label: "> 100" },
+      { value: 1000, size: 8, label: "> 1000" },
+      { value: 2000, size: 16, label: "> 2000" },
+      { value: 10000, size: 25, label: "> 10000" },
+      { value: 5000, size: 20, label: "> 5000" },
+   ],
+};
+
+const opacity = {
+   type: "opacity",
+   field: "Deaths",
+   stops: [
+      { value: 10, opacity: 0.15 },
+      { value: 1000, opacity: 0.7 },
+      { value: 2000, opacity: 0.8 },
+      { value: 10000, opacity: 1 },
+      { value: 5000, opacity: 0.9 },
    ],
 };
 
@@ -38,10 +50,10 @@ const renderer = {
       type: "simple-marker",
       outline: {
          width: 1,
-         color: "white",
+         color: "rgba(0,0,0,0.5)",
       },
    },
-   visualVariables: [color, size],
+   visualVariables: [color, size, opacity],
 };
 
 export const layers = [
