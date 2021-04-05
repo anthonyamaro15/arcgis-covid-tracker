@@ -11,6 +11,7 @@ import FeatureLayerView from "@arcgis/core/views/layers/FeatureLayerView";
 import GraphicsLayer from "@arcgis/core/layers/GraphicsLayer";
 import Sketch from "@arcgis/core/widgets/Sketch";
 import Query from "@arcgis/core/tasks/support/Query";
+import Legend from "@arcgis/core/widgets/Legend";
 import store from "../redux/store";
 import { setCountries, setMapLoaded } from "../redux/slices/mapSlice";
 
@@ -64,6 +65,7 @@ class MapController {
       // this.#mapview.ui.add(this.#sketch, "bottom-right");
       this.#mapview.ui.add(this.#searchWidget, "top-right");
       this.#mapview.ui.add(this.#bgExpand, "top-right");
+      this.#mapview.ui.add(new Legend({ view: this.#mapview }), "bottom-left");
 
       this.#mapview?.when(async () => {
          this.#mapLayers = [];
@@ -97,6 +99,8 @@ class MapController {
                nodesExpand.watch("expanded", () => {
                   if (!nodesExpand.expanded) {
                      this.#layerView.filter = null;
+                     // if menu closes restet go back to defaul view
+                     this.recenterMap([-100.33, 25.69]);
                   }
                });
                this.#mapview?.ui.add(nodesExpand, "top-left");
@@ -107,8 +111,11 @@ class MapController {
       });
    };
 
-   recenterMap = (geometries: any, fn: any) => {
-      return fn.union(geometries);
+   recenterMap = async (coor: any) => {
+      this.#mapview?.goTo(
+         { zoom: 5, target: coor },
+         { animate: true, duration: 100 },
+      );
    };
 
    updateView = () => {
@@ -152,10 +159,7 @@ class MapController {
             where: "Country_Region = '" + value + "'",
          };
          const extend = await layer.queryExtent(query);
-         this.#mapview?.goTo(
-            { zoom: 5, target: extend.extent },
-            { animate: true, duration: 100 },
-         );
+         this.recenterMap(extend.extent);
       }
    };
 
