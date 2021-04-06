@@ -4,15 +4,14 @@ const color = {
    type: "color",
    field: "Deaths",
    legendOptions: {
-      title: "number of deaths representing by color",
-      showLegend: true,
+      title: "Number of deaths representing by color",
    },
    stops: [
-      { value: 10, color: "black", label: "> Black" },
-      { value: 1000, color: "red", label: "> Red" },
-      { value: 2000, color: "purple", label: "> Purple" },
-      { value: 10000, color: "orange", label: "> Orange" },
-      { value: 5000, color: "green", label: "> Green" },
+      { value: 10, color: "black", label: "> 100" },
+      { value: 1000, color: "red", label: "> 1000" },
+      { value: 2000, color: "purple", label: "> 2000" },
+      { value: 10000, color: "orange", label: "> 10000" },
+      { value: 5000, color: "green", label: "> 5000" },
    ],
 };
 
@@ -20,8 +19,7 @@ const size = {
    type: "size",
    field: "Deaths",
    legendOptions: {
-      title: "Number of deaths by representing by size",
-      showLegend: true,
+      title: "Higher deaths represent a bigger symbol",
    },
    stops: [
       { value: 10, size: 9, label: "> 100" },
@@ -35,6 +33,9 @@ const size = {
 const opacity = {
    type: "opacity",
    field: "Deaths",
+   legendOptions: {
+      title: "Higher deaths have a higher opacity",
+   },
    stops: [
       { value: 10, opacity: 0.15 },
       { value: 1000, opacity: 0.7 },
@@ -44,7 +45,7 @@ const opacity = {
    ],
 };
 
-const renderer = {
+export const renderer = {
    type: "simple",
    symbol: {
       type: "simple-marker",
