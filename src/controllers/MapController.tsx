@@ -15,6 +15,10 @@ import Legend from "@arcgis/core/widgets/Legend";
 import store from "../redux/store";
 import { setCountries, setMapLoaded } from "../redux/slices/mapSlice";
 
+enum LayerIds {
+   COVID_ID = "covid-tracker",
+}
+
 class MapController {
    #map?: Map;
    #mapview?: MapView;
@@ -81,7 +85,7 @@ class MapController {
          const node = document.getElementById("dead-filter");
 
          const layer = this.#map?.findLayerById(
-            "covid-tracker",
+            LayerIds.COVID_ID,
          ) as FeatureLayer;
 
          this.#mapview?.whenLayerView(layer)?.then((featureLayerView) => {
@@ -150,7 +154,7 @@ class MapController {
 
    filterByDeath = async (value: string) => {
       const layer = this.#map?.findLayerById(
-         "covid-tracker",
+         LayerIds.COVID_ID,
       ) as __esri.FeatureLayer;
       if (this.#layerView) {
          const query = new Query();
