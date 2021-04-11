@@ -12,6 +12,7 @@ import GraphicsLayer from "@arcgis/core/layers/GraphicsLayer";
 import Sketch from "@arcgis/core/widgets/Sketch";
 import Query from "@arcgis/core/tasks/support/Query";
 import Legend from "@arcgis/core/widgets/Legend";
+import * as geometryEngine from "@arcgis/core/geometry/geometryEngine";
 import store from "../redux/store";
 import { setCountries, setMapLoaded } from "../redux/slices/mapSlice";
 
@@ -25,11 +26,13 @@ class MapController {
    #mapLayers?: FeatureLayer[] | any;
    #baseMapGallery?: BaseMapGallery;
    #bgExpand?: Expand;
+   #sketchExpand?: Expand;
    #searchWidget?: Search;
    #layer?: GraphicsLayer;
    #sketch?: Sketch;
    #layerView?: FeatureLayerView | any;
    #test?: any;
+   #updateGemotries?: any;
 
    initializeMap = async (domRef: RefObject<HTMLDivElement>) => {
       if (!domRef.current) {
@@ -48,6 +51,11 @@ class MapController {
          container: domRef.current,
          center: [-100.33, 25.69],
          zoom: 5,
+         highlightOptions: {
+            color: "red",
+            haloOpacity: 0.9,
+            fillOpacity: 1,
+         },
       });
 
       this.#baseMapGallery = new BaseMapGallery({
@@ -60,13 +68,34 @@ class MapController {
       });
 
       this.#searchWidget = new Search({ view: this.#mapview });
+
       this.#sketch = new Sketch({
          layer: this.#layer,
          view: this.#mapview,
          creationMode: "update",
+         visibleElements: {
+            createTools: {
+               point: false,
+               polyline: false,
+            },
+            selectionTools: {
+               "lasso-selection": false,
+               "rectangle-selection": false,
+            },
+         },
       });
 
-      // this.#mapview.ui.add(this.#sketch, "bottom-right");
+      this.#sketch.on("create", (event) => {
+         if (event.state === "complete") {
+            this.#layer?.remove(event.graphic);
+            this.#updateGemotries = this.getSketchUpdate(
+               event.graphic.geometry,
+               geometryEngine,
+            );
+            this.updateView();
+         }
+      });
+
       this.#mapview.ui.add(this.#searchWidget, "top-right");
       this.#mapview.ui.add(this.#bgExpand, "top-right");
       this.#mapview.ui.add(new Legend({ view: this.#mapview }), "bottom-left");
@@ -109,10 +138,27 @@ class MapController {
                });
                this.#mapview?.ui.add(nodesExpand, "top-left");
             }
+            const sketchExpand = new Expand({
+               view: this.#mapview,
+               content: this.#sketch,
+               expandIconClass: "esri-icon-edit",
+            });
+
+            sketchExpand.watch("expanded", () => {
+               if (!sketchExpand.expanded) {
+                  this.#layerView.filter = null;
+               }
+            });
+
+            this.#mapview?.ui.add(sketchExpand, "bottom-right");
          });
          store.dispatch(setMapLoaded(true));
          this.filterByCountry();
       });
+   };
+
+   getSketchUpdate = (geometry: any, fn: __esri.geometryEngine) => {
+      return fn.union(geometry);
    };
 
    recenterMap = async (coor: any) => {
@@ -125,7 +171,7 @@ class MapController {
    updateView = () => {
       if (this.#layerView) {
          this.#layerView.filter = {
-            geometry: this.#test,
+            geometry: this.#updateGemotries,
          };
       }
    };
@@ -158,7 +204,9 @@ class MapController {
       ) as __esri.FeatureLayer;
       if (this.#layerView) {
          const query = new Query();
+
          query.where = "Country_Region = '" + value + "'";
+         query.returnGeometry = true;
          this.#layerView.filter = {
             where: "Country_Region = '" + value + "'",
          };

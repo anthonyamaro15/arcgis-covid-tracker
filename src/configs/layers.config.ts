@@ -10,7 +10,7 @@ const color = {
       { value: 10, color: "black", label: "> 100" },
       { value: 1000, color: "red", label: "> 1000" },
       { value: 2000, color: "purple", label: "> 2000" },
-      { value: 10000, color: "orange", label: "> 10000" },
+      // { value: 10000, color: "orange", label: "> 10000" },
       { value: 5000, color: "green", label: "> 5000" },
    ],
 };
@@ -18,16 +18,20 @@ const color = {
 const size = {
    type: "size",
    field: "Deaths",
+   // valueExpression: "$view.scale",
+
    legendOptions: {
       title: "Higher deaths represent a bigger symbol",
    },
    stops: [
-      { value: 10, size: 9, label: "> 100" },
+      { value: 10, size: 4, label: "> 100" },
       { value: 1000, size: 8, label: "> 1000" },
       { value: 2000, size: 16, label: "> 2000" },
-      { value: 10000, size: 25, label: "> 10000" },
+      // { value: 10000, size: 25, label: "> 10000" },
       { value: 5000, size: 20, label: "> 5000" },
    ],
+   // minSize: "20px",
+   // maxSize: "60px",
 };
 
 const opacity = {
@@ -37,10 +41,10 @@ const opacity = {
       title: "Higher deaths have a higher opacity",
    },
    stops: [
-      { value: 10, opacity: 0.15 },
+      { value: 10, opacity: 0.25 },
       { value: 1000, opacity: 0.7 },
       { value: 2000, opacity: 0.8 },
-      { value: 10000, opacity: 1 },
+      // { value: 10000, opacity: 1 },
       { value: 5000, opacity: 0.9 },
    ],
 };
@@ -49,14 +53,18 @@ export const renderer = {
    type: "simple",
    symbol: {
       type: "simple-marker",
+      // style: "triangle",
       outline: {
+         // type: "simple-line",
          width: 1,
          color: "rgba(0,0,0,0.5)",
+         style: "short-dot",
       },
    },
    visualVariables: [color, size, opacity],
 };
 
+// confirmed - deaths
 export const layers = [
    {
       type: "FeatureLayer",
