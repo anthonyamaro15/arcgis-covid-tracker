@@ -2,23 +2,23 @@ import { trackerPopup } from "../helperFiles";
 
 const color = {
    type: "color",
-   field: "Deaths",
+   field: "Confirmed",
    legendOptions: {
-      title: "Number of deaths representing by color",
+      title: "Cases Confirmed by color",
    },
    stops: [
-      { value: 10, color: "black", label: "> 100" },
-      { value: 1000, color: "red", label: "> 1000" },
-      { value: 2000, color: "purple", label: "> 2000" },
-      // { value: 10000, color: "orange", label: "> 10000" },
-      { value: 5000, color: "green", label: "> 5000" },
+      { value: 20000, color: "black", label: "> 100" },
+      { value: 40000, color: "red", label: "> 1000" },
+      { value: 60000, color: "purple", label: "> 2000" },
+      { value: 100000, color: "green", label: "> 5000" },
+      { value: 300000, color: "rgba(150,50,90,0.9)", label: "> 20000" },
    ],
 };
 
 const size = {
    type: "size",
    field: "Deaths",
-   // valueExpression: "$view.scale",
+   valueExpression: "($feature.Confirmed / $feature.Deaths) * 100",
 
    legendOptions: {
       title: "Higher deaths represent a bigger symbol",
@@ -27,11 +27,8 @@ const size = {
       { value: 10, size: 4, label: "> 100" },
       { value: 1000, size: 8, label: "> 1000" },
       { value: 2000, size: 16, label: "> 2000" },
-      // { value: 10000, size: 25, label: "> 10000" },
-      { value: 5000, size: 20, label: "> 5000" },
+      { value: 5000, size: 22, label: "> 5000" },
    ],
-   // minSize: "20px",
-   // maxSize: "60px",
 };
 
 const opacity = {
@@ -44,7 +41,6 @@ const opacity = {
       { value: 10, opacity: 0.25 },
       { value: 1000, opacity: 0.7 },
       { value: 2000, opacity: 0.8 },
-      // { value: 10000, opacity: 1 },
       { value: 5000, opacity: 0.9 },
    ],
 };
