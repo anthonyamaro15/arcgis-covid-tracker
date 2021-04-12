@@ -33,6 +33,7 @@ class MapController {
    #layerView?: FeatureLayerView | any;
    #test?: any;
    #updateGemotries?: any;
+   #highlight?: any;
 
    initializeMap = async (domRef: RefObject<HTMLDivElement>) => {
       if (!domRef.current) {
@@ -52,9 +53,10 @@ class MapController {
          center: [-100.33, 25.69],
          zoom: 5,
          highlightOptions: {
-            color: "red",
+            color: "blue",
+            haloColor: "red",
             haloOpacity: 0.9,
-            fillOpacity: 1,
+            fillOpacity: 0.2,
          },
       });
 
@@ -134,6 +136,9 @@ class MapController {
                      this.#layerView.filter = null;
                      // if menu closes restet go back to defaul view
                      this.recenterMap([-100.33, 25.69]);
+                     // remove highligh after side menu is close
+                     this.#highlight.remove();
+                     this.#highlight = null;
                   }
                });
                this.#mapview?.ui.add(nodesExpand, "top-left");
@@ -179,7 +184,7 @@ class MapController {
    filterByCountry = async () => {
       if (this.#mapLayers) {
          const countries = await this.#mapLayers[0].queryFeatures({
-            outFields: ["Country_Region"],
+            outFields: ["Country_Region", "OBJECTID"],
             where: "Country_Region IS NOT NULL ",
          });
          if (countries.features.length) {
@@ -187,8 +192,10 @@ class MapController {
             const removeInvalidCountries = countries.features.map(
                (country: any) => country.attributes,
             );
+
             for (let i = 0; i < removeInvalidCountries.length; i++) {
                const country = removeInvalidCountries[i].Country_Region;
+
                if (!allCountries.includes(country)) {
                   allCountries.push(country);
                }
@@ -209,10 +216,24 @@ class MapController {
          query.returnGeometry = true;
          this.#layerView.filter = {
             where: "Country_Region = '" + value + "'",
+            outFields: ["Country_Region", "OBJECTID"],
          };
          const extend = await layer.queryExtent(query);
+
+         this.highlightState(query, layer);
          this.recenterMap(extend.extent);
       }
+   };
+
+   highlightState = (query: __esri.Query, layer: __esri.FeatureLayer) => {
+      this.#mapview?.whenLayerView(layer).then((layerView) => {
+         layerView.queryObjectIds(query).then((res) => {
+            if (this.#highlight) {
+               this.#highlight.remove();
+            }
+            this.#highlight = layerView.highlight(res);
+         });
+      });
    };
 
    get map() {
