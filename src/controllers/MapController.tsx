@@ -12,6 +12,7 @@ import GraphicsLayer from "@arcgis/core/layers/GraphicsLayer";
 import Sketch from "@arcgis/core/widgets/Sketch";
 import Query from "@arcgis/core/tasks/support/Query";
 import Legend from "@arcgis/core/widgets/Legend";
+import LayerList from "@arcgis/core/widgets/LayerList";
 import * as geometryEngine from "@arcgis/core/geometry/geometryEngine";
 import store from "../redux/store";
 import { setCountries, setMapLoaded } from "../redux/slices/mapSlice";
@@ -34,6 +35,7 @@ class MapController {
    #test?: any;
    #updateGemotries?: any;
    #highlight?: any;
+   #layerList?: LayerList;
 
    initializeMap = async (domRef: RefObject<HTMLDivElement>) => {
       if (!domRef.current) {
@@ -53,8 +55,8 @@ class MapController {
          center: [-100.33, 25.69],
          zoom: 5,
          highlightOptions: {
-            color: "blue",
-            haloColor: "red",
+            color: "white",
+            haloColor: "blue",
             haloOpacity: 0.9,
             fillOpacity: 0.2,
          },
@@ -70,6 +72,10 @@ class MapController {
       });
 
       this.#searchWidget = new Search({ view: this.#mapview });
+
+      this.#layerList = new LayerList({
+         view: this.#mapview,
+      });
 
       this.#sketch = new Sketch({
          layer: this.#layer,
@@ -157,6 +163,14 @@ class MapController {
 
             this.#mapview?.ui.add(sketchExpand, "bottom-right");
          });
+
+         const expandListLayer = new Expand({
+            view: this.#mapview,
+            content: this.#layerList,
+            expandIconClass: "esri-icon-layers",
+         });
+
+         this.#mapview?.ui.add(expandListLayer, "top-right");
          store.dispatch(setMapLoaded(true));
          this.filterByCountry();
       });
@@ -227,7 +241,7 @@ class MapController {
 
    highlightState = (query: __esri.Query, layer: __esri.FeatureLayer) => {
       this.#mapview?.whenLayerView(layer).then((layerView) => {
-         layerView.queryObjectIds(query).then((res) => {
+         layer.queryObjectIds(query).then((res) => {
             if (this.#highlight) {
                this.#highlight.remove();
             }

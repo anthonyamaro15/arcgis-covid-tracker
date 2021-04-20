@@ -18,6 +18,7 @@ const color = {
 const size = {
    type: "size",
    field: "Deaths",
+
    valueExpression: "($feature.Confirmed / $feature.Deaths) * 100",
 
    legendOptions: {
@@ -49,12 +50,9 @@ export const renderer = {
    type: "simple",
    symbol: {
       type: "simple-marker",
-      // style: "triangle",
       outline: {
-         // type: "simple-line",
          width: 1,
          color: "rgba(0,0,0,0.5)",
-         style: "short-dot",
       },
    },
    visualVariables: [color, size, opacity],
@@ -66,7 +64,7 @@ export const layers = [
       type: "FeatureLayer",
       options: {
          url:
-            "https://services1.arcgis.com/0MSEUqKaxRlEPj5g/arcgis/rest/services/ncov_cases2_v1/FeatureServer/1",
+            "https://services1.arcgis.com/0MSEUqKaxRlEPj5g/arcgis/rest/services/ncov_cases2_v1/FeatureServer/0",
          id: "covid-tracker",
          title: "covid tracker",
          visible: true,
