@@ -64,7 +64,7 @@ export const layers = [
       type: "FeatureLayer",
       options: {
          url:
-            "https://services1.arcgis.com/0MSEUqKaxRlEPj5g/arcgis/rest/services/ncov_cases2_v1/FeatureServer/0",
+            "https://services1.arcgis.com/0MSEUqKaxRlEPj5g/arcgis/rest/services/ncov_cases2_v1/FeatureServer",
          id: "covid-tracker",
          title: "covid tracker",
          visible: true,

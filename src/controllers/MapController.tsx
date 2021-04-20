@@ -13,6 +13,7 @@ import Sketch from "@arcgis/core/widgets/Sketch";
 import Query from "@arcgis/core/tasks/support/Query";
 import Legend from "@arcgis/core/widgets/Legend";
 import LayerList from "@arcgis/core/widgets/LayerList";
+import GroupLayer from "@arcgis/core/layers/GroupLayer";
 import * as geometryEngine from "@arcgis/core/geometry/geometryEngine";
 import store from "../redux/store";
 import { setCountries, setMapLoaded } from "../redux/slices/mapSlice";
@@ -36,17 +37,32 @@ class MapController {
    #updateGemotries?: any;
    #highlight?: any;
    #layerList?: LayerList;
+   #casesLayer?: FeatureLayer;
+   #groupLayers?: GroupLayer;
 
    initializeMap = async (domRef: RefObject<HTMLDivElement>) => {
       if (!domRef.current) {
          return;
       }
 
+      this.#casesLayer = new FeatureLayer({
+         url:
+            "https://services1.arcgis.com/0MSEUqKaxRlEPj5g/ArcGIS/rest/services/ncov_cases2_v1/FeatureServer/1",
+         visible: true,
+         title: "cases",
+      });
+
       this.#layer = new GraphicsLayer();
 
+      this.#groupLayers = new GroupLayer({
+         title: "covid",
+         visible: false,
+         visibilityMode: "exclusive",
+         layers: [this.#casesLayer],
+      });
       this.#map = new Map({
          basemap: "gray",
-         layers: [this.#layer],
+         layers: [this.#groupLayers],
       });
 
       this.#mapview = new MapView({
@@ -72,10 +88,6 @@ class MapController {
       });
 
       this.#searchWidget = new Search({ view: this.#mapview });
-
-      this.#layerList = new LayerList({
-         view: this.#mapview,
-      });
 
       this.#sketch = new Sketch({
          layer: this.#layer,
@@ -125,8 +137,17 @@ class MapController {
             LayerIds.COVID_ID,
          ) as FeatureLayer;
 
+         this.#layerList = new LayerList({
+            view: this.#mapview,
+            // iconClass: "esri-expand--drawer",
+            listItemCreatedFunction: this.listItemCreatedFunction,
+         });
+
          this.#mapview?.whenLayerView(layer)?.then((featureLayerView) => {
             this.#layerView = featureLayerView;
+            this.#layerList?.on("trigger-action", (event) => {
+               this.listenForTriggerEvents(event);
+            });
 
             if (node) {
                node.style.visibility = "visible";
@@ -248,6 +269,40 @@ class MapController {
             this.#highlight = layerView.highlight(res);
          });
       });
+   };
+
+   listItemCreatedFunction = (event: any) => {
+      const item = event.item;
+      // if(!this.#mapview) return;
+      // console.log("wha is event? ", event);
+      // console.log("how many layers? ", this.#map?.layers);
+
+      if (item.title === "covid-tracker") {
+         item.actionSections = [
+            [
+               {
+                  title: "cases",
+                  className: "esri-icon-up",
+                  id: "confirmed",
+               },
+            ],
+            [
+               {
+                  title: "cases cases country",
+                  className: "esri-icon-up",
+                  id: "confirmed",
+               },
+            ],
+         ];
+      }
+   };
+
+   listenForTriggerEvents = (event: any) => {
+      if (!this.#casesLayer) return;
+      console.log("what is event here ?? ", event);
+      if (event.action.id === "cases") {
+         this.#casesLayer.visible = !this.#casesLayer.visible;
+      }
    };
 
    get map() {
