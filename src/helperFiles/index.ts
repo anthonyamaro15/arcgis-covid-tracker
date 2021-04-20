@@ -1,4 +1,3 @@
-const s = "$feature.Deaths * 100";
 const trackerPopup = {
    title: "State of: {Province_State}",
    expressionInfos: [
