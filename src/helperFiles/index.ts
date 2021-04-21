@@ -1,3 +1,18 @@
+function getPopupData({ graphic }: __esri.Graphic | any) {
+   const div = document.createElement("div");
+
+   return (div.innerHTML = `
+      <b>Country:</b> ${graphic.attributes.Country_Region ?? "N/A"}<br>
+      <b>Last Update:</b> ${graphic.attributes.Last_Update ?? "N/A"}<br>
+      <b>People tested:</b> ${graphic.attributes.People_Tested ?? "N/A"}<br>
+      <b>Confirmed:</b> ${graphic.attributes.Confirmed ?? "N/A"}<br>
+      <b>Recovered:</b> ${graphic.attributes.Recovered ?? "N/A"}<br>
+      <b>Deaths:</b> ${graphic.attributes.Deaths ?? "N/A"}<br>
+      <b>Active:</b> ${graphic.attributes.Active ?? "N/A"}<br>
+      <b>Tested:</b> ${graphic.attributes.People_Tested ?? "N/A"}<br>
+      <b>Stimate of people with Covid: </b> Around {expression/Deaths}% of population has got sick in {Province_State} <br>
+   `);
+}
 const trackerPopup = {
    title: "State of: {Province_State}",
    expressionInfos: [
@@ -8,18 +23,7 @@ const trackerPopup = {
          expression: "Round(($feature.Deaths / $feature.Confirmed) * 100)",
       },
    ],
-   content: `
-      <b>Country:</b> {Country_Region}<br>
-      <b>Last Update:</b> {Last_Update}<br>
-      <b>People tested:</b> {People_Tested IS NOT NULL}<br>
-
-      <b>Confirmed:</b> {Confirmed}<br>
-      <b>Recovered:</b> {Recovered}<br>
-      <b>Deaths:</b> {Deaths}<br>
-      <b>Active:</b> {Active}<br>
-      <b>Tested:</b> {People_Tested}<br>
-      <b>Stimate of people with Covid: </b> Around {expression/Deaths}% of population has got sick in {Province_State} <br>
-   `,
+   content: getPopupData,
 };
 
 const colorVisVar = {
