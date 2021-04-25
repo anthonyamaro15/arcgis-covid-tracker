@@ -14,6 +14,7 @@ import Query from "@arcgis/core/tasks/support/Query";
 import Legend from "@arcgis/core/widgets/Legend";
 import LayerList from "@arcgis/core/widgets/LayerList";
 import GroupLayer from "@arcgis/core/layers/GroupLayer";
+import Graphic from "@arcgis/core/Graphic";
 import * as geometryEngine from "@arcgis/core/geometry/geometryEngine";
 import store from "../redux/store";
 import { setCountries, setMapLoaded } from "../redux/slices/mapSlice";
@@ -30,7 +31,7 @@ class MapController {
    #bgExpand?: Expand;
    #sketchExpand?: Expand;
    #searchWidget?: Search;
-   #layer?: GraphicsLayer;
+   #layer?: GraphicsLayer | any;
    #sketch?: Sketch;
    #layerView?: FeatureLayerView | any;
    #test?: any;
@@ -39,6 +40,7 @@ class MapController {
    #layerList?: LayerList;
    #casesLayer?: FeatureLayer;
    #groupLayers?: GroupLayer;
+   #graphic?: Graphic | any;
 
    initializeMap = async (domRef: RefObject<HTMLDivElement>) => {
       if (!domRef.current) {
@@ -165,7 +167,8 @@ class MapController {
                      this.recenterMap([-100.33, 25.69]);
                      // remove highligh after side menu is close
                      this.#highlight.remove();
-                     this.#highlight = null;
+                     // remove graphic symbol from selected country
+                     this.#layer?.removeAll();
                   }
                });
                this.#mapview?.ui.add(nodesExpand, "top-left");
@@ -254,7 +257,8 @@ class MapController {
             outFields: ["Country_Region", "OBJECTID"],
          };
          const extend = await layer.queryExtent(query);
-
+         const queryResult = await layer.queryFeatures(query);
+         this.displayResults(queryResult);
          this.highlightState(query, layer);
          this.recenterMap(extend.extent);
       }
@@ -303,6 +307,21 @@ class MapController {
       if (event.action.id === "cases") {
          this.#casesLayer.visible = !this.#casesLayer.visible;
       }
+   };
+
+   // draw diamond icon for selected country
+   displayResults = (result: __esri.FeatureSet) => {
+      this.#graphic = result.features.map((graphic: __esri.Graphic | any) => {
+         graphic.symbol = {
+            type: "simple-marker",
+            style: "diamond",
+            size: 50,
+            color: "rgba(0,0,0,0.7)",
+         };
+         return graphic;
+      });
+      this.#layer?.addMany(this.#graphic);
+      this.#map?.add(this.#layer);
    };
 
    get map() {
